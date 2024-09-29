@@ -7,14 +7,13 @@ import DashboardTopNav from "./_components/dashbord-top-nav"
 import config from "@/config"
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
+  // Remove or comment out the authorization check
+  // const user = await currentUser()
+  // const { authorized, message } = await isAuthorized(user?.id!)
 
-  const user = await currentUser()
-
-  const { authorized, message } = await isAuthorized(user?.id!)
-
-  if (config.payments.enabled && !authorized) {
-    return <NotAuthorized />
-  }
+  // if (config.payments.enabled && !authorized) {
+  //   return <NotAuthorized />
+  // }
 
   return (
     <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">

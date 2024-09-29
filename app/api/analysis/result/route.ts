@@ -26,14 +26,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const analysisResult = await prisma.analysis.findUnique({
-      where: { taskId },
+      where: { task_id: taskId },
     });
 
     if (!analysisResult) {
       return res.status(404).json({ message: 'Analysis result not found' });
     }
 
-    if (analysisResult.userId !== userId) {
+    if (analysisResult.user_id !== userId) {
       return res.status(403).json({ message: 'Forbidden' });
     }
 

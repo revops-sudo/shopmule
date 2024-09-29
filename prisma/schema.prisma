@@ -84,8 +84,8 @@ model analysis {
   created_at             DateTime @default(now())
   task_id                String   @unique
   product_name           String
-  user                   user     @relation("UserAnalyses", fields: [userId], references: [id])
-  userId                 Int
+  user                   user     @relation("UserAnalyses", fields: [user_id], references: [user_id])
+  user_id                String
   review_count           Int?
   review_rating          Float?
   avg_listing_date       DateTime?

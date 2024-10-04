@@ -1,7 +1,7 @@
 // lib/analysis/fetchAmazonData.ts
 
 import axios from 'axios';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { AmazonData } from './types';
 
 export async function fetchAmazonData(productName: string): Promise<AmazonData> {

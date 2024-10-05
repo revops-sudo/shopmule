@@ -37,3 +37,8 @@ export interface AmazonData {
   export interface AnalysisResultData extends MuleScoreCriteria {
     muleScore: number;
   }
+
+export type LiabilityEvaluation = {
+  score: number;
+  explanation: string;
+};

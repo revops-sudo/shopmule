@@ -2,24 +2,53 @@
 
 import { OpenAI } from 'openai';
 
-export async function evaluateSeasonality(openai: OpenAI, productName: string): Promise<number> {
-  const prompt = `On a scale of 1 to 5, rate the seasonality of the product "${productName}". Provide only the number without any explanation.`;
+export interface SeasonalityEvaluation {
+  score: number;
+  explanation: string;
+}
+
+export async function evaluateSeasonality(openai: OpenAI, productName: string): Promise<SeasonalityEvaluation> {
+  const prompt = `
+Evaluate the seasonality of the product "${productName}" on a scale of 1 to 5, where:
+
+1: Extremely seasonal (<2 months of demand)
+2: High seasonality (2+ months of demand)
+3: Moderate seasonality (6+ months of demand)
+4: Nearly stable (8+ months of demand)
+5: Stable (12 months of demand)
+
+Based on these criteria, provide the numeric score (1, 2, 3, 4, or 5) for the product "${productName}" along with a brief explanation of why you chose that score. Format your response as follows:
+Score: [numeric score]
+Explanation: [your brief explanation]
+`;
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4',
       messages: [
-        { role: 'system', content: 'You are a helpful assistant.' },
-        { role: 'user', content: prompt }
+        { role: 'system', content: prompt },
       ],
-      max_tokens: 1,
+      max_tokens: 150,
       temperature: 0,
     });
 
-    const seasonalityScore = parseInt(response.choices?.[0]?.message?.content?.trim() ?? '3', 10);
-    return isNaN(seasonalityScore) ? 3 : seasonalityScore; // Default to 3 if parsing fails
+    const content = response.choices[0]?.message?.content?.trim() ?? 'No response';
+    
+    const scoreMatch = content.match(/Score:\s*(\d+)/);
+    const explanationMatch = content.match(/Explanation:\s*([\s\S]*)/);
+
+    const score = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;
+    const explanation = explanationMatch ? explanationMatch[1].trim() : 'No explanation provided';
+
+    return {
+      score: score,
+      explanation: explanation
+    };
   } catch (error) {
     console.error('Error evaluating seasonality:', error);
-    return 3; // Default value in case of error
+    return {
+      score: 0,
+      explanation: 'Error occurred while evaluating seasonality'
+    };
   }
 }

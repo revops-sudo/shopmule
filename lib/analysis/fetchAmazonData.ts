@@ -21,7 +21,7 @@ export async function fetchAmazonData(productName: string): Promise<AmazonData> 
     let reviewRating = 0.0;
     let unitsSoldPerMonth = 0;
     let pricing = 0.0;
-    let minPrice = Infinity;
+    let minPrice = 0;
     let maxPrice = -Infinity;
 
     // Example of extracting data from the first product listing

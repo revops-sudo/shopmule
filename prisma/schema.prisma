@@ -18,6 +18,10 @@ model user {
   profile_image_url String?
   user_id           String   @unique
   subscription      String?
+  analyses          analysis[]      @relation("UserAnalyses")
+  payments          payments[]      @relation("UserPayments")
+  subscriptions     subscriptions[] @relation("UserSubscriptions")
+  invoices          invoices[]      @relation("UserInvoices")
 }
 
 model payments {
@@ -29,6 +33,7 @@ model payments {
   payment_time     String
   payment_date     String
   currency         String
+  user             user     @relation("UserPayments", fields: [user_id], references: [user_id])
   user_id          String
   customer_details String
   payment_intent   String
@@ -45,6 +50,7 @@ model subscriptions {
   plan_id                   String
   default_payment_method_id String?
   email                     String
+  user                      user     @relation("UserSubscriptions", fields: [user_id], references: [user_id])
   user_id                   String
 }
 
@@ -69,5 +75,29 @@ model invoices {
   currency        String
   status          String
   email           String
-  user_id         String?
+  user            user     @relation("UserInvoices", fields: [user_id], references: [user_id])
+  user_id         String
+}
+
+model analysis {
+  id                     Int      @id @default(autoincrement())
+  created_at             DateTime @default(now())
+  task_id                String   @unique
+  product_name           String
+  user                   user     @relation("UserAnalyses", fields: [user_id], references: [user_id])
+  user_id                String
+  review_count           Int?
+  review_rating          Float?
+  avg_listing_date       DateTime?
+  monthly_search_volume  Int?
+  trendiness             Float?
+  seasonality            Int?
+  rev_per_month          Float?
+  units_sold_per_month   Int?
+  pricing                Float?
+  pricing_disparity      Float?
+  margin_factor          Float?
+  liability              Int?
+  complexity             Int?
+  mule_score             Int?
 }

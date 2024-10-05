@@ -26,7 +26,8 @@ const nextConfig = {
       hostname: 'utfs.io',
       port: '',
       pathname: '/**'
-    }]
+    }],
+    domains: ['hebbkx1anhila5yf.public.blob.vercel-storage.com'],
   },
   env: {
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,

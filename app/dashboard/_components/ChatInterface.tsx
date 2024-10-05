@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,18 +18,53 @@ export function ChatInterface() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    console.log('Current messages:', messages);
+  }, [messages]);
+
+  const triggerAnalysis = async (productName: string) => {
+    console.log('Triggering analysis for:', productName);
+    try {
+      const response = await axios.post("/api/analysis/start", { productName });
+      console.log('Analysis response:', response.data);
+      const { taskId } = response.data;
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          role: "assistant",
+          content: `Analysis started for "${productName}". Task ID: ${taskId}`,
+        },
+      ]);
+    } catch (error) {
+      console.error("Error starting analysis:", error);
+      if (error instanceof Error) {
+        console.error("Error details:", (error as any).response?.data || error.message);
+      }
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          role: "assistant",
+          content: "Sorry, there was an error starting the analysis. Please try again.",
+        },
+      ]);
+    }
+  };
+
   const sendMessage = async () => {
     if (!input.trim()) return;
 
+    console.log('Sending message:', input);
     const userMessage: Message = { role: "user", content: input };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setInput("");
     setLoading(true);
 
     try {
+      console.log('Sending request to /api/chat');
       const response = await axios.post("/api/chat", {
         messages: [...messages, userMessage],
       });
+      console.log('Chat API response:', response.data);
 
       const assistantMessage: Message = {
         role: "assistant",
@@ -37,9 +72,29 @@ export function ChatInterface() {
       };
 
       setMessages((prevMessages) => [...prevMessages, assistantMessage]);
+
+      console.log('Checking for product selection');
+      // Check the entire conversation for a product selection
+      const fullConversation = [...messages, userMessage, assistantMessage];
+      const productSelectionMessage = fullConversation.find(msg => 
+        msg.role === 'assistant' && msg.content.includes("You've selected")
+      );
+
+      if (productSelectionMessage) {
+        console.log('Product selection detected');
+        const productNameMatch = productSelectionMessage.content.match(/"([^"]+)"/);
+        if (productNameMatch) {
+          const productName = productNameMatch[1];
+          console.log('Extracted product name:', productName);
+          await triggerAnalysis(productName);
+        } else {
+          console.log('Failed to extract product name');
+        }
+      } else {
+        console.log('No product selection detected');
+      }
     } catch (error) {
       console.error("Error sending message:", error);
-      // Optionally display an error message to the user
       setMessages((prevMessages) => [
         ...prevMessages,
         {

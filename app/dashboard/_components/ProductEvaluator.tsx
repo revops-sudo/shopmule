@@ -9,11 +9,17 @@ interface ProductEvaluation {
   liabilityScore: EvaluationResult;
   complexityScore: EvaluationResult;
   seasonalityScore: EvaluationResult;
+  googleTrendsData: GoogleTrendsData;
 }
 
 interface EvaluationResult {
   score: number;
   explanation: string;
+}
+
+interface GoogleTrendsData {
+  searchVolumeScore: number;
+  searchVolumeExplanation: string;
 }
 
 export function ProductEvaluator() {
@@ -59,6 +65,9 @@ export function ProductEvaluator() {
           <h3>Seasonality Evaluation:</h3>
           <p>Score: {evaluationResult.seasonalityScore.score}</p>
           <p>Explanation: {evaluationResult.seasonalityScore.explanation}</p>
+          <h3>Google Trends Data:</h3>
+          <p>Search Volume Score: {evaluationResult.googleTrendsData.searchVolumeScore}</p>
+          <p>Search Volume Explanation: {evaluationResult.googleTrendsData.searchVolumeExplanation}</p>
         </div>
       )}
     </div>

@@ -3,6 +3,8 @@ import { OpenAI } from 'openai';
 import { evaluateLiability } from '@/lib/analysis/evaluateLiability';
 import { evaluateComplexity } from '@/lib/analysis/evaluateComplexity';
 import { evaluateSeasonality } from '@/lib/analysis/evaluateSeasonality';
+import { fetchGoogleTrendsData } from '@/lib/analysis/fetchGoogleTrendsData';
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
@@ -19,10 +21,14 @@ export async function POST(req: NextRequest) {
     const liabilityScore = await evaluateLiability(openai, productName);
     const complexityScore = await evaluateComplexity(openai, productName);
     const seasonalityScore = await evaluateSeasonality(openai, productName);
+    const googleTrendsData = await fetchGoogleTrendsData(productName);
+
     console.log('Liability evaluation result:', liabilityScore);
     console.log('Complexity evaluation result:', complexityScore);
     console.log('Seasonality evaluation result:', seasonalityScore);
-    return NextResponse.json({ liabilityScore, complexityScore, seasonalityScore });
+    console.log('Google Trends data:', googleTrendsData);
+
+    return NextResponse.json({ liabilityScore, complexityScore, seasonalityScore, googleTrendsData });
   } catch (error) {
     console.error('Error evaluating product:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });

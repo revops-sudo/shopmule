@@ -8,6 +8,8 @@ export interface GoogleTrendsData {
   searchVolumeScore: number;
   searchVolumeExplanation: string;
   trendiness: number;
+  trendinessScore: number;
+  trendinessExplanation: string;
 }
 
 export async function fetchGoogleTrendsData(productName: string): Promise<GoogleTrendsData> {
@@ -27,11 +29,16 @@ export async function fetchGoogleTrendsData(productName: string): Promise<Google
     const searchVolumeScore = getSearchVolumeScore(monthlySearchVolume);
     const searchVolumeExplanation = getSearchVolumeExplanation(monthlySearchVolume, searchVolumeScore);
 
+    const trendinessScore = getTrendinessScore(trendiness);
+    const trendinessExplanation = getTrendinessExplanation(trendiness, trendinessScore);
+
     const googleTrendsData: GoogleTrendsData = {
       monthlySearchVolume,
       searchVolumeScore,
       searchVolumeExplanation,
       trendiness,
+      trendinessScore,
+      trendinessExplanation,
     };
 
     return googleTrendsData;
@@ -42,6 +49,8 @@ export async function fetchGoogleTrendsData(productName: string): Promise<Google
       searchVolumeScore: 0,
       searchVolumeExplanation: 'Error occurred while fetching Google Trends data',
       trendiness: 0,
+      trendinessScore: 0,
+      trendinessExplanation: 'Error occurred while fetching Google Trends data',
     };
   }
 }
@@ -64,4 +73,23 @@ function getSearchVolumeExplanation(monthlySearchVolume: number, score: number):
     5: "Ideal search volume, suggesting a sweet spot of interest without oversaturation",
   };
   return `Monthly search volume: ${monthlySearchVolume}. ${explanations[score as keyof typeof explanations]}`;
+}
+
+function getTrendinessScore(trendiness: number): number {
+  if (trendiness >= 80) return 5;
+  if (trendiness >= 60) return 4;
+  if (trendiness >= 40) return 3;
+  if (trendiness >= 20) return 2;
+  return 1;
+}
+
+function getTrendinessExplanation(trendiness: number, score: number): string {
+  const explanations = {
+    1: "Low trendiness, indicating minimal current interest",
+    2: "Below average trendiness, suggesting moderate current interest",
+    3: "Average trendiness, indicating steady current interest",
+    4: "Above average trendiness, showing strong current interest",
+    5: "High trendiness, indicating very high current interest and potential for growth",
+  };
+  return `Current trendiness: ${trendiness}. ${explanations[score as keyof typeof explanations]}`;
 }

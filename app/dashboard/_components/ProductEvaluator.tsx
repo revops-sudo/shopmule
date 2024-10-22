@@ -20,6 +20,8 @@ interface EvaluationResult {
 interface GoogleTrendsData {
   searchVolumeScore: number;
   searchVolumeExplanation: string;
+  trendinessScore: number;
+  trendinessExplanation: string;
 }
 
 export function ProductEvaluator() {
@@ -65,9 +67,12 @@ export function ProductEvaluator() {
           <h3>Seasonality Evaluation:</h3>
           <p>Score: {evaluationResult.seasonalityScore.score}</p>
           <p>Explanation: {evaluationResult.seasonalityScore.explanation}</p>
-          <h3>Google Trends Data:</h3>
-          <p>Search Volume Score: {evaluationResult.googleTrendsData.searchVolumeScore}</p>
-          <p>Search Volume Explanation: {evaluationResult.googleTrendsData.searchVolumeExplanation}</p>
+          <h3>Monthly Search Volume:</h3>
+          <p>Score: {evaluationResult.googleTrendsData.searchVolumeScore}</p>
+          <p>Explanation: {evaluationResult.googleTrendsData.searchVolumeExplanation}</p>
+          <h3>Trendiness:</h3>
+          <p>Score: {evaluationResult.googleTrendsData.trendinessScore}</p>
+          <p>Explanation: {evaluationResult.googleTrendsData.trendinessExplanation}</p>
         </div>
       )}
     </div>

@@ -4,13 +4,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios from 'axios';
-
-interface ProductEvaluation {
-  liabilityScore: EvaluationResult;
-  complexityScore: EvaluationResult;
-  seasonalityScore: EvaluationResult;
-  googleTrendsData: GoogleTrendsData;
-}
+import { formatLargeNumber } from '@/lib/utils';
 
 interface EvaluationResult {
   score: number;
@@ -24,19 +18,42 @@ interface GoogleTrendsData {
   trendinessExplanation: string;
 }
 
+interface AmazonData {
+  reviewCount: number;
+  reviewRating: number;
+  pricing: number;
+  minPrice: number;
+  maxPrice: number;
+  reviewCountEvaluation: EvaluationResult;
+  reviewRatingEvaluation: EvaluationResult;
+  pricingEvaluation: EvaluationResult;
+}
+
+interface ProductEvaluation {
+  amazonData: AmazonData;
+  liabilityScore: EvaluationResult;
+  complexityScore: EvaluationResult;
+  seasonalityScore: EvaluationResult;
+  googleTrendsData: GoogleTrendsData;
+}
+
 export function ProductEvaluator() {
   const [productName, setProductName] = useState('');
   const [evaluationResult, setEvaluationResult] = useState<ProductEvaluation | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
+    
     try {
       const response = await axios.post('/api/evaluate-product', { productName });
       setEvaluationResult(response.data);
     } catch (error) {
       console.error('Error evaluating product:', error);
+      setError('Failed to evaluate product. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -56,23 +73,79 @@ export function ProductEvaluator() {
           {loading ? 'Evaluating...' : 'Evaluate Product'}
         </Button>
       </form>
+
+      {error && (
+        <div className="text-red-500">{error}</div>
+      )}
+
       {evaluationResult && (
-        <div>
-          <h3>Liability Evaluation:</h3>
-          <p>Score: {evaluationResult.liabilityScore.score}</p>
-          <p>Explanation: {evaluationResult.liabilityScore.explanation}</p>
-          <h3>Complexity Evaluation:</h3>
-          <p>Score: {evaluationResult.complexityScore.score}</p>
-          <p>Explanation: {evaluationResult.complexityScore.explanation}</p>
-          <h3>Seasonality Evaluation:</h3>
-          <p>Score: {evaluationResult.seasonalityScore.score}</p>
-          <p>Explanation: {evaluationResult.seasonalityScore.explanation}</p>
-          <h3>Monthly Search Volume:</h3>
-          <p>Score: {evaluationResult.googleTrendsData.searchVolumeScore}</p>
-          <p>Explanation: {evaluationResult.googleTrendsData.searchVolumeExplanation}</p>
-          <h3>Trendiness:</h3>
-          <p>Score: {evaluationResult.googleTrendsData.trendinessScore}</p>
-          <p>Explanation: {evaluationResult.googleTrendsData.trendinessExplanation}</p>
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Amazon Data</h3>
+            <div className="pl-4 space-y-4">
+              <div className="space-y-1">
+                <p><span className="text-gray-600">Review Count:</span> {formatLargeNumber(evaluationResult.amazonData.reviewCount)}</p>
+                <p><span className="text-gray-600">Score:</span> {evaluationResult.amazonData.reviewCountEvaluation.score}</p>
+                <p><span className="text-gray-600">Explanation:</span> {evaluationResult.amazonData.reviewCountEvaluation.explanation}</p>
+              </div>
+
+              <div className="space-y-1">
+                <p><span className="text-gray-600">Review Rating:</span> {evaluationResult.amazonData.reviewRating.toFixed(1)}</p>
+                <p><span className="text-gray-600">Score:</span> {evaluationResult.amazonData.reviewRatingEvaluation.score}</p>
+                <p><span className="text-gray-600">Explanation:</span> {evaluationResult.amazonData.reviewRatingEvaluation.explanation}</p>
+              </div>
+
+              <div className="space-y-1">
+                <p><span className="text-gray-600">Average Price:</span> ${evaluationResult.amazonData.pricing.toFixed(2)}</p>
+                <p><span className="text-gray-600">Score:</span> {evaluationResult.amazonData.pricingEvaluation.score}</p>
+                <p><span className="text-gray-600">Explanation:</span> {evaluationResult.amazonData.pricingEvaluation.explanation}</p>
+              </div>
+
+              <div className="space-y-1">
+                <p><span className="text-gray-600">Price Range:</span> ${evaluationResult.amazonData.minPrice.toFixed(2)} - ${evaluationResult.amazonData.maxPrice.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Liability Evaluation</h3>
+            <div className="pl-4 space-y-1">
+              <p><span className="text-gray-600">Score:</span> {evaluationResult.liabilityScore.score}</p>
+              <p><span className="text-gray-600">Explanation:</span> {evaluationResult.liabilityScore.explanation}</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Complexity Evaluation</h3>
+            <div className="pl-4 space-y-1">
+              <p><span className="text-gray-600">Score:</span> {evaluationResult.complexityScore.score}</p>
+              <p><span className="text-gray-600">Explanation:</span> {evaluationResult.complexityScore.explanation}</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Seasonality Evaluation</h3>
+            <div className="pl-4 space-y-1">
+              <p><span className="text-gray-600">Score:</span> {evaluationResult.seasonalityScore.score}</p>
+              <p><span className="text-gray-600">Explanation:</span> {evaluationResult.seasonalityScore.explanation}</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Monthly Search Volume</h3>
+            <div className="pl-4 space-y-1">
+              <p><span className="text-gray-600">Score:</span> {evaluationResult.googleTrendsData.searchVolumeScore}</p>
+              <p><span className="text-gray-600">Explanation:</span> {evaluationResult.googleTrendsData.searchVolumeExplanation}</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Trendiness</h3>
+            <div className="pl-4 space-y-1">
+              <p><span className="text-gray-600">Score:</span> {evaluationResult.googleTrendsData.trendinessScore}</p>
+              <p><span className="text-gray-600">Explanation:</span> {evaluationResult.googleTrendsData.trendinessExplanation}</p>
+            </div>
+          </div>
         </div>
       )}
     </div>

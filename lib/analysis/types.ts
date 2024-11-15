@@ -8,6 +8,10 @@ export interface AmazonData {
     pricing: number;
     minPrice: number;
     maxPrice: number;
+    reviewCountEvaluation: {
+        score: number;
+        explanation: string;
+    };
     // Add other fields as needed
   }
   
@@ -42,3 +46,7 @@ export type LiabilityEvaluation = {
   score: number;
   explanation: string;
 };
+
+export interface AmazonDataWithEvaluation {
+    // Define your interface properties here
+}

@@ -3,7 +3,6 @@
 export interface AmazonData {
     reviewCount: number;
     reviewRating: number;
-    avgListingDate?: Date;
     unitsSoldPerMonth: number;
     pricing: number;
     minPrice: number;
@@ -48,5 +47,22 @@ export type LiabilityEvaluation = {
 };
 
 export interface AmazonDataWithEvaluation {
-    // Define your interface properties here
+    reviewCount: number;
+    reviewRating: number;
+    unitsSoldPerMonth: number;
+    pricing: number;
+    minPrice: number;
+    maxPrice: number;
+    reviewCountEvaluation: {
+        score: number;
+        explanation: string;
+    };
+    reviewRatingEvaluation: {
+        score: number;
+        explanation: string;
+    };
+    pricingEvaluation: {
+        score: number;
+        explanation: string;
+    };
 }

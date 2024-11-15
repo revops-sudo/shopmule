@@ -29,9 +29,25 @@ export async function fetchAmazonData(productName: string): Promise<AmazonDataWi
     let minPrice = Infinity;
     let maxPrice = -Infinity;
     let processedItems = 0;
+    let unitsSoldPerMonth = 0;
 
     $('.s-result-item[data-component-type="s-search-result"]').each((index, element) => {
       console.log(`Processing item ${index + 1}`);
+
+      // Add units sold parsing
+      const unitsSoldText = $(element).find('.a-size-base.a-color-secondary:contains("bought in past month")').text().trim();
+      if (unitsSoldText) {
+        console.log('Found units sold text:', unitsSoldText);
+        const match = unitsSoldText.match(/(\d+)K?\+?\s*bought/i);
+        if (match) {
+          let amount = parseInt(match[1], 10);
+          if (unitsSoldText.includes('K')) {
+            amount *= 1000;
+          }
+          unitsSoldPerMonth += amount;
+          console.log(`Added units sold to total: ${amount} (Running total: ${unitsSoldPerMonth})`);
+        }
+      }
 
       // Extract review count - simplified parsing
       const reviewsText = $(element).find('span.a-size-base.s-underline-text').text().trim();
@@ -99,7 +115,7 @@ export async function fetchAmazonData(productName: string): Promise<AmazonDataWi
     const amazonData: AmazonDataWithEvaluation = {
       reviewCount,
       reviewRating,  // This will now be rounded to 1 decimal
-      unitsSoldPerMonth: 0,
+      unitsSoldPerMonth,
       pricing,
       minPrice: minPrice === Infinity ? 0 : minPrice,
       maxPrice: maxPrice === -Infinity ? 0 : maxPrice,

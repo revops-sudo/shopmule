@@ -41,3 +41,17 @@ export function evaluateReviewCount(count: number): { score: number; explanation
       return { score: 5, explanation: `Average price of $${price.toFixed(2)} indicates excellent margin potential` };
     }
   }
+
+  export function evaluateRevenue(revenuePerMonth: number): { score: number; explanation: string } {
+    if (revenuePerMonth >= 7000) {
+      return { score: 5, explanation: `Monthly revenue of $${revenuePerMonth.toFixed(2)} indicates excellent market potential` };
+    } else if (revenuePerMonth >= 4000) {
+      return { score: 4, explanation: `Monthly revenue of $${revenuePerMonth.toFixed(2)} suggests strong market performance` };
+    } else if (revenuePerMonth >= 2000) {
+      return { score: 3, explanation: `Monthly revenue of $${revenuePerMonth.toFixed(2)} shows moderate market presence` };
+    } else if (revenuePerMonth >= 1000) {
+      return { score: 2, explanation: `Monthly revenue of $${revenuePerMonth.toFixed(2)} indicates limited market potential` };
+    } else {
+      return { score: 1, explanation: `Monthly revenue of $${revenuePerMonth.toFixed(2)} suggests very low market potential` };
+    }
+  }

@@ -6,6 +6,11 @@ import { Input } from "@/components/ui/input";
 import axios from 'axios';
 import { formatLargeNumber } from '@/lib/utils';
 
+interface DerivedMetrics {
+  revenuePerMonth: number;
+  revenueEvaluation: EvaluationResult;
+}
+
 interface EvaluationResult {
   score: number;
   explanation: string;
@@ -31,6 +36,7 @@ interface AmazonData {
 
 interface ProductEvaluation {
   amazonData: AmazonData;
+  derivedMetrics: DerivedMetrics;
   liabilityScore: EvaluationResult;
   complexityScore: EvaluationResult;
   seasonalityScore: EvaluationResult;
@@ -83,6 +89,7 @@ export function ProductEvaluator() {
           <div className="space-y-2">
             <h3 className="text-lg font-semibold">Amazon Data</h3>
             <div className="pl-4 space-y-4">
+
               <div className="space-y-1">
                 <p><span className="text-gray-600">Review Count:</span> {formatLargeNumber(evaluationResult.amazonData.reviewCount)}</p>
                 <p><span className="text-gray-600">Score:</span> {evaluationResult.amazonData.reviewCountEvaluation.score}</p>
@@ -144,6 +151,15 @@ export function ProductEvaluator() {
             <div className="pl-4 space-y-1">
               <p><span className="text-gray-600">Score:</span> {evaluationResult.googleTrendsData.trendinessScore}</p>
               <p><span className="text-gray-600">Explanation:</span> {evaluationResult.googleTrendsData.trendinessExplanation}</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Monthly Revenue</h3>
+            <div className="pl-4 space-y-1">
+              <p><span className="text-gray-600">Revenue:</span> ${evaluationResult.derivedMetrics.revenuePerMonth.toFixed(2)}</p>
+              <p><span className="text-gray-600">Score:</span> {evaluationResult.derivedMetrics.revenueEvaluation.score}</p>
+              <p><span className="text-gray-600">Explanation:</span> {evaluationResult.derivedMetrics.revenueEvaluation.explanation}</p>
             </div>
           </div>
         </div>

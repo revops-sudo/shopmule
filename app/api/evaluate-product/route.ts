@@ -5,6 +5,7 @@ import { evaluateComplexity } from '@/lib/analysis/evaluateComplexity';
 import { evaluateSeasonality } from '@/lib/analysis/evaluateSeasonality';
 import { fetchGoogleTrendsData } from '@/lib/analysis/fetchGoogleTrendsData';
 import { fetchAmazonData } from '@/lib/analysis/fetchAmazonData';
+import { evaluateRevenue } from '@/lib/analysis/evaluateAmazonMetrics';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -25,6 +26,12 @@ export async function POST(req: NextRequest) {
     const seasonalityScore = await evaluateSeasonality(openai, productName);
     const googleTrendsData = await fetchGoogleTrendsData(productName);
 
+    // After fetching Amazon data, calculate revenue per month
+    const revenuePerMonth = amazonData.unitsSoldPerMonth * amazonData.pricing;
+
+    // Then calculate revenue evaluation
+    const revenueEvaluation = evaluateRevenue(revenuePerMonth);
+
     console.log('Amazon data:', amazonData);
     console.log('Liability evaluation result:', liabilityScore);
     console.log('Complexity evaluation result:', complexityScore);
@@ -36,7 +43,11 @@ export async function POST(req: NextRequest) {
       liabilityScore, 
       complexityScore, 
       seasonalityScore, 
-      googleTrendsData 
+      googleTrendsData,
+      derivedMetrics: {
+        revenuePerMonth,
+        revenueEvaluation
+      }
     });
   } catch (error) {
     console.error('Error evaluating product:', error);
